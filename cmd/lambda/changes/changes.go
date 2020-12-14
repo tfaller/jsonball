@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/tfaller/jsonball/internal/operation"
 	"github.com/tfaller/jsonball/internal/startup"
 	"github.com/tfaller/propchange"

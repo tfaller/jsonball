@@ -6,6 +6,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/tfaller/jsonball/event"
 	"github.com/tfaller/jsonball/internal/operation"
 	"github.com/tfaller/jsonball/internal/startup"
