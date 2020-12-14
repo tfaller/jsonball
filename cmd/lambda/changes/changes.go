@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/google/uuid"
 	"github.com/tfaller/jsonball/internal/operation"
 	"github.com/tfaller/jsonball/internal/startup"
 	"github.com/tfaller/propchange"
@@ -20,6 +21,8 @@ var (
 	sqsClient = startup.MustGetSqsClient()
 	detector  = startup.MustGetDetector()
 	registry  = startup.MustGetRegistry()
+
+	messageID = "jsonball"
 )
 
 func lambdaMain(ctx context.Context) error {
@@ -65,6 +68,10 @@ func processChange(ctx context.Context, change propchange.OnChange) error {
 	_, err = sqsClient.SendMessage(ctx, &sqs.SendMessageInput{
 		QueueUrl:    &queueURL,
 		MessageBody: aws.String(string(msgBody)),
+		// For now we don't have a safe way to use different message ids.
+		// By using the same for all, messages are processed in a strict FIFO manner.
+		MessageGroupId:         &messageID,
+		MessageDeduplicationId: aws.String(uuid.New().String()),
 	})
 	if err != nil {
 		return err
