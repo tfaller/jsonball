@@ -6,6 +6,7 @@ import (
 	"log"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/tfaller/jsonball/internal/operation"
 	"github.com/tfaller/jsonball/internal/startup"
 )
 
@@ -20,7 +21,7 @@ func main() {
 	flag.Parse()
 	ctx := context.Background()
 
-	err := registry.RegisterDocumentType(ctx, *docType)
+	err := operation.RegisterDocumentType(ctx, registry, *docType)
 	if err != nil {
 		log.Fatal(err)
 	}

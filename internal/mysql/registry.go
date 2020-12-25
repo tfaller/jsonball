@@ -11,7 +11,6 @@ import (
 
 	"github.com/tfaller/go-sqlprepare"
 	"github.com/tfaller/jsonball"
-	"github.com/tfaller/jsonball/internal/name"
 )
 
 // Registry is a registry with a mysql backend
@@ -256,11 +255,6 @@ func (r *Registry) GetNewDocHanders(ctx context.Context, docType string) ([]stri
 func (r *Registry) RegisterDocumentType(ctx context.Context, docType string) error {
 	r.m.Lock()
 	defer r.m.Unlock()
-
-	err := name.CheckDocTypeName(docType)
-	if err != nil {
-		return err
-	}
 
 	res, err := r.stmtDocTypeReg.ExecContext(ctx, docType)
 	if err != nil {
