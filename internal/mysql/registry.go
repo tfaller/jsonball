@@ -11,6 +11,7 @@ import (
 
 	"github.com/tfaller/go-sqlprepare"
 	"github.com/tfaller/jsonball"
+	"github.com/tfaller/jsonball/internal/name"
 )
 
 // Registry is a registry with a mysql backend
@@ -22,6 +23,7 @@ type Registry struct {
 	stmtNewDoc        *sql.Stmt
 	stmtGetDoc        *sql.Stmt
 	stmtDocType       *sql.Stmt
+	stmtDocTypeReg    *sql.Stmt
 	stmtDocRefresh    *sql.Stmt
 	stmtDocUpdate     *sql.Stmt
 	stmtHandlerQueue  *sql.Stmt
@@ -82,6 +84,9 @@ func (r *Registry) prepare() error {
 
 		{Name: "doc-type", Target: &r.stmtDocType,
 			Query: "SELECT id FROM document_type WHERE name = ?"},
+
+		{Name: "doc-type-reg", Target: &r.stmtDocTypeReg,
+			Query: "INSERT INTO document_type (name) VALUES (?)"},
 
 		{Name: "handler-queueurl", Target: &r.stmtHandlerQueue,
 			Query: "SELECT queueurl FROM handler WHERE name = ?"},
@@ -245,6 +250,31 @@ func (r *Registry) GetNewDocHanders(ctx context.Context, docType string) ([]stri
 	}
 
 	return handlers, nil
+}
+
+// RegisterDocumentType registers a new document type
+func (r *Registry) RegisterDocumentType(ctx context.Context, docType string) error {
+	r.m.Lock()
+	defer r.m.Unlock()
+
+	err := name.CheckDocTypeName(docType)
+	if err != nil {
+		return err
+	}
+
+	res, err := r.stmtDocTypeReg.ExecContext(ctx, docType)
+	if err != nil {
+		return err
+	}
+
+	// cache document type
+	docTypeID, err := res.LastInsertId()
+	if err != nil {
+		return err
+	}
+	r.docType[docType] = uint64(docTypeID)
+
+	return nil
 }
 
 // Change updates a document

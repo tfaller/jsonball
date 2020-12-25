@@ -37,6 +37,9 @@ type Registry interface {
 	// GetHandlerQueueURL returns the SQS queue URL. This func is called
 	// if a change for a given handler was found.
 	GetHandlerQueueURL(ctx context.Context, handler string) (string, error)
+
+	// Registers a document type in the registry
+	RegisterDocumentType(ctx context.Context, docType string) error
 }
 
 // DocOps handles the operations possible on an opened document
