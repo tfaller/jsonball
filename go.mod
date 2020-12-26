@@ -8,6 +8,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/config v0.3.0
 	github.com/aws/aws-sdk-go-v2/service/sqs v0.30.0
 	github.com/go-sql-driver/mysql v1.5.0
+	github.com/golang/mock v1.4.4
 	github.com/google/uuid v1.1.2
 	github.com/kr/text v0.2.0 // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
