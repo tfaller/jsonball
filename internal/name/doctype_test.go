@@ -35,3 +35,12 @@ func TestCheckDocTypeName(t *testing.T) {
 		}
 	}
 }
+
+func TestIsDocTypeInternal(t *testing.T) {
+	if !IsDocTypeInternal(InternalPrefix + "test") {
+		t.Error("Expected this to be internal")
+	}
+	if IsDocTypeInternal("test") {
+		t.Error("Expected this be internal")
+	}
+}

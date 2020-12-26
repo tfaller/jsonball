@@ -47,3 +47,8 @@ func CheckDocTypeName(docType string, internal bool) error {
 
 	return nil
 }
+
+// IsDocTypeInternal checks if a document type is a internal reserved one.
+func IsDocTypeInternal(docType string) bool {
+	return strings.HasPrefix(docType, InternalPrefix)
+}
