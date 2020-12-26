@@ -48,3 +48,21 @@ type RegisterHandler struct {
 	Handler  string `json:"handler"`
 	QueueURL string `json:"queueUrl"`
 }
+
+// AdminCmd is used for multiple different administrative commands
+type AdminCmd struct {
+	Cmd             string                `json:"cmd"`
+	RegisterHandler *RegisterHandler      `json:"regHandler,omitempty"`
+	RegisterDocType *AdminRegisterDocType `json:"regDocType,omitempty"`
+	RequeueHandler  *AdminRequeueHandler  `json:"requeueHandler,omitempty"`
+}
+
+// AdminRegisterDocType is used to register a new document type
+type AdminRegisterDocType struct {
+	Type string `json:"type"`
+}
+
+// AdminRequeueHandler is used to requeue a listeners of a handler
+type AdminRequeueHandler struct {
+	Handler string `json:"handler"`
+}
