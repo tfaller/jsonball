@@ -16,19 +16,26 @@ func HandleChange(ctx context.Context, registry jsonball.Registry, change propch
 	}
 
 	docs := change.Documents()
-	changedDocs := make([]event.Document, len(docs))
+	changedDocs := make([]event.Document, 0, len(docs))
 
 	// doc current document
-	for i, doc := range docs {
+	for _, doc := range docs {
 		docType, docName, err := name.ParseDocName(doc)
 		if err != nil {
 			return nil, err
 		}
+
+		if name.IsDocTypeInternal(docType) {
+			// Ignore this document. Just there for
+			// internal handling of things.
+			continue
+		}
+
 		d, err := GetDocumentContent(ctx, registry, docType, docName)
 		if err != nil {
 			return nil, err
 		}
-		changedDocs[i] = d
+		changedDocs = append(changedDocs, d)
 	}
 
 	changeEvent.Documents = changedDocs

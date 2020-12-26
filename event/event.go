@@ -42,3 +42,9 @@ type Document struct {
 	Version  uint32      `json:"version"`
 	Document interface{} `json:"doc"`
 }
+
+// RegisterHandler regsisters a new Handler
+type RegisterHandler struct {
+	Handler  string `json:"handler"`
+	QueueURL string `json:"queueUrl"`
+}

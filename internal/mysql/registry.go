@@ -11,6 +11,7 @@ import (
 
 	"github.com/tfaller/go-sqlprepare"
 	"github.com/tfaller/jsonball"
+	"github.com/tfaller/jsonball/event"
 )
 
 // Registry is a registry with a mysql backend
@@ -27,6 +28,7 @@ type Registry struct {
 	stmtDocUpdate     *sql.Stmt
 	stmtHandlerQueue  *sql.Stmt
 	stmtHandlerNewDoc *sql.Stmt
+	stmtHandlerReg    *sql.Stmt
 
 	docType map[string]uint64
 }
@@ -89,6 +91,9 @@ func (r *Registry) prepare() error {
 
 		{Name: "handler-queueurl", Target: &r.stmtHandlerQueue,
 			Query: "SELECT queueurl FROM handler WHERE name = ?"},
+
+		{Name: "handler-register", Target: &r.stmtHandlerReg,
+			Query: "INSERT INTO handler (name, queueurl) VALUES (?, ?)"},
 
 		{Name: "handler-newdoc", Target: &r.stmtHandlerNewDoc,
 			Query: "SELECT h.name FROM document_type dt JOIN document_type_handler dth ON dth.doctype = dt.id JOIN handler h ON h.id = dth.handler WHERE dt.name = ?"},
@@ -269,6 +274,12 @@ func (r *Registry) RegisterDocumentType(ctx context.Context, docType string) err
 	r.docType[docType] = uint64(docTypeID)
 
 	return nil
+}
+
+// RegisterHandler registers a new handler
+func (r *Registry) RegisterHandler(ctx context.Context, handler *event.RegisterHandler) error {
+	_, err := r.stmtHandlerReg.ExecContext(ctx, handler.Handler, handler.QueueURL)
+	return err
 }
 
 // Change updates a document

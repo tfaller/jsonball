@@ -3,6 +3,8 @@ package jsonball
 import (
 	"context"
 	"errors"
+
+	"github.com/tfaller/jsonball/event"
 )
 
 // Change represents a given change
@@ -40,6 +42,9 @@ type Registry interface {
 
 	// Registers a document type in the registry
 	RegisterDocumentType(ctx context.Context, docType string) error
+
+	// RegisterHandler registers a new handler
+	RegisterHandler(ctx context.Context, handler *event.RegisterHandler) error
 }
 
 // DocOps handles the operations possible on an opened document
