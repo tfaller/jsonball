@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	handlerPatternRaw = "^[a-z0-9\\-]{1,10}$"
+	handlerPatternRaw = "^[a-z0-9\\-]{1,30}$"
 
 	// HandlerDocumentType is a reserved internal document type
 	// use for special handler related documents

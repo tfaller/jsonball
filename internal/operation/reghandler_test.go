@@ -26,7 +26,7 @@ func TestRegisterHandler(t *testing.T) {
 		// simple test case
 		{&event.RegisterHandler{Handler: "handler", QueueURL: "queueurl"}, nil},
 		// too long name
-		{&event.RegisterHandler{Handler: "veryveryverylongname", QueueURL: "queueurl"}, name.ErrHandlerNameInvalid},
+		{&event.RegisterHandler{Handler: "veryveryverylongnameveryveryverylongname", QueueURL: "queueurl"}, name.ErrHandlerNameInvalid},
 	}
 
 	for idx, test := range testCases {
