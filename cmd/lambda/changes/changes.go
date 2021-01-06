@@ -22,7 +22,8 @@ var (
 	detector  = startup.MustGetDetector()
 	registry  = startup.MustGetRegistry()
 
-	messageID = "jsonball"
+	messageID       = "jsonball"
+	handlerQueueURL = map[string]string{}
 )
 
 func lambdaMain(ctx context.Context) error {
@@ -55,9 +56,13 @@ func processChange(ctx context.Context, change propchange.OnChange) error {
 		return err
 	}
 
-	queueURL, err := registry.GetHandlerQueueURL(ctx, jsonball.Handler)
-	if err != nil {
-		return err
+	queueURL := handlerQueueURL[jsonball.Handler]
+	if queueURL == "" {
+		queueURL, err = registry.GetHandlerQueueURL(ctx, jsonball.Handler)
+		if err != nil {
+			return err
+		}
+		handlerQueueURL[jsonball.Handler] = queueURL
 	}
 
 	if !strings.HasSuffix(queueURL, ".fifo") {
