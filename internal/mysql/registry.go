@@ -211,12 +211,6 @@ func (r *Registry) doNewDoc(name string, typeID uint64, tx *sql.Tx) (*Document, 
 
 // GetDocument gets the current document content
 func (r *Registry) GetDocument(ctx context.Context, docType, name string) (string, error) {
-	tx, err := r.db.BeginTx(ctx, nil)
-	if err != nil {
-		return "", err
-	}
-	defer tx.Rollback() // close tx ... we did no changes
-
 	// resolve the doc type first
 	docTypeID, err := r.getTypeID(docType)
 	if err != nil {
@@ -224,7 +218,7 @@ func (r *Registry) GetDocument(ctx context.Context, docType, name string) (strin
 	}
 
 	doc := ""
-	row := tx.Stmt(r.stmtGetDoc).QueryRow(docTypeID, name)
+	row := r.stmtGetDoc.QueryRow(docTypeID, name)
 
 	if err = row.Scan(&doc); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
