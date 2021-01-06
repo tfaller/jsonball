@@ -72,7 +72,7 @@ func (r *Registry) prepare() error {
 			Query: "SELECT * FROM document WHERE type = ? AND name = ? FOR UPDATE"},
 
 		{Name: "get-doc", Target: &r.stmtGetDoc,
-			Query: "SELECT document FROM document WHERE type = ? AND name = ?"},
+			Query: "SELECT document FROM document WHERE type = ? AND name = ? FOR SHARE"},
 
 		{Name: "new-doc", Target: &r.stmtNewDoc,
 			Query: "INSERT INTO document (type, name, document) VALUES (?, ?, ?)"},
@@ -211,8 +211,7 @@ func (r *Registry) doNewDoc(name string, typeID uint64, tx *sql.Tx) (*Document, 
 
 // GetDocument gets the current document content
 func (r *Registry) GetDocument(ctx context.Context, docType, name string) (string, error) {
-	// IMPORTANT: Read only committed document
-	tx, err := r.db.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelReadCommitted})
+	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {
 		return "", err
 	}
