@@ -1,6 +1,7 @@
 package startup
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -13,13 +14,13 @@ var (
 	awsSqsClient *sqs.Client
 )
 
-func getAwsConfig() (aws.Config, error) {
+func getAwsConfig(ctx context.Context) (aws.Config, error) {
 	if awsConfig.Region != "" {
 		return awsConfig, nil
 	}
 
 	var err error
-	awsConfig, err = config.LoadDefaultConfig()
+	awsConfig, err = config.LoadDefaultConfig(ctx)
 	if err != nil {
 		return awsConfig, fmt.Errorf("can't load aws config: %w", err)
 	}
@@ -27,12 +28,12 @@ func getAwsConfig() (aws.Config, error) {
 }
 
 // GetSqsClient gets an sqs client
-func GetSqsClient() (*sqs.Client, error) {
+func GetSqsClient(ctx context.Context) (*sqs.Client, error) {
 	if awsSqsClient != nil {
 		return awsSqsClient, nil
 	}
 
-	awsConfig, err := getAwsConfig()
+	awsConfig, err := getAwsConfig(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +45,7 @@ func GetSqsClient() (*sqs.Client, error) {
 // MustGetSqsClient like GetSqsClient but panics
 // if an error happened
 func MustGetSqsClient() *sqs.Client {
-	client, err := GetSqsClient()
+	client, err := GetSqsClient(context.Background())
 	if err != nil {
 		panic(err)
 	}
