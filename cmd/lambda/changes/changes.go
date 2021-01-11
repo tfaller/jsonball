@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/aws/aws-lambda-go/lambda"
@@ -12,9 +13,11 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
+	"github.com/tfaller/jsonball/internal/handlercache"
 	"github.com/tfaller/jsonball/internal/operation"
 	"github.com/tfaller/jsonball/internal/startup"
 	"github.com/tfaller/propchange"
+	"golang.org/x/sync/errgroup"
 )
 
 var (
@@ -23,26 +26,52 @@ var (
 	registry  = startup.MustGetRegistry()
 
 	messageID       = "jsonball"
-	handlerQueueURL = map[string]string{}
+	handlerQueueURL = handlercache.NewHandlerCache(registry)
 )
 
 func lambdaMain(ctx context.Context) error {
+	throttle := make(chan struct{}, 10)
+	errGroup, errCtx := errgroup.WithContext(ctx)
+
+loop:
 	for {
-		change, err := detector.NextChange(ctx)
-		if err != nil {
-			if errors.Is(err, propchange.ErrNoMoreChanges) {
-				// end early ... no more changes
-				return nil
-			}
-			return err
+		select {
+		case throttle <- struct{}{}:
+		case <-errCtx.Done():
+			break loop
 		}
 
-		err = processChange(ctx, change)
-		if err != nil {
-			change.Close()
-			return err
+		// check again whether no error exists
+		// it could be that only throttle was checked
+		if errCtx.Err() != nil {
+			break
 		}
+
+		change, err := detector.NextChange(ctx)
+		if err != nil {
+			if !errors.Is(err, propchange.ErrNoMoreChanges) {
+				errGroup.Go(func() error { return err })
+			}
+			// stop because of no more changes or error
+			break
+		}
+
+		// process changes concurrently
+		errGroup.Go(func() error {
+			err := processChange(ctx, change)
+			if err != nil {
+				// because we don't return all errors, log
+				// concurent errors
+				log.Println(err)
+				change.Close()
+			}
+
+			<-throttle
+			return err
+		})
 	}
+
+	return errGroup.Wait()
 }
 
 func processChange(ctx context.Context, change propchange.OnChange) error {
@@ -56,13 +85,9 @@ func processChange(ctx context.Context, change propchange.OnChange) error {
 		return err
 	}
 
-	queueURL := handlerQueueURL[jsonball.Handler]
-	if queueURL == "" {
-		queueURL, err = registry.GetHandlerQueueURL(ctx, jsonball.Handler)
-		if err != nil {
-			return err
-		}
-		handlerQueueURL[jsonball.Handler] = queueURL
+	queueURL, err := handlerQueueURL.GetHandlerQueueURL(ctx, jsonball.Handler)
+	if err != nil {
+		return err
 	}
 
 	if !strings.HasSuffix(queueURL, ".fifo") {
