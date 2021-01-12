@@ -54,6 +54,8 @@ github.com/tfaller/go-sqlprepare v0.0.0-20200926193806-f262fddc887a h1:X2TOuGH1Q
 github.com/tfaller/go-sqlprepare v0.0.0-20200926193806-f262fddc887a/go.mod h1:q5AaR1kSJdvCqaes7eqJP5v1jFjdOp4t08oEp0BpuN4=
 github.com/tfaller/propchange v0.0.0-20210110162640-dccb458c14fa h1:Fd/EZsCSEROZSV7YChw+sCdg4DK+rAIGfuQJPXkPYV8=
 github.com/tfaller/propchange v0.0.0-20210110162640-dccb458c14fa/go.mod h1:ZHKJLLE+TS6ee74lnc3jtjRpuQLAeL+TQfiPQe8JCB8=
+github.com/tfaller/propchange v0.0.0-20210112163100-b5f7eb8046f2 h1:znrfsyeq4M6zE3WpU5bHmQag5zie3dnt8fabIy7WiLo=
+github.com/tfaller/propchange v0.0.0-20210112163100-b5f7eb8046f2/go.mod h1:ZHKJLLE+TS6ee74lnc3jtjRpuQLAeL+TQfiPQe8JCB8=
 github.com/urfave/cli/v2 v2.2.0/go.mod h1:SE9GqnLQmjVa0iPEY0f1w3ygNIYcIJ0OKPMoW2caLfQ=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/net v0.0.0-20190311183353-d8887717615a/go.mod h1:t9HGtf8HONx5eT2rtn7q6eTqICYqUVnKs3thJo3Qplg=
