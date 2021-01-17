@@ -40,8 +40,9 @@ func Listen(ctx context.Context, detector propchange.Detector, listen event.List
 			prop[p] = uint64(d.Version)
 		}
 		docFilter[i] = propchange.ChangeFilter{
-			Document:   name.CreateDocName(d.Type, d.Name),
-			Properties: prop,
+			Document:    name.CreateDocName(d.Type, d.Name),
+			NewDocument: d.NewDocument,
+			Properties:  prop,
 		}
 	}
 

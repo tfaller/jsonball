@@ -29,8 +29,8 @@ github.com/golang/mock v1.4.4/go.mod h1:l3mdAwkq5BuhzHwde/uurv3sEJeZMXNpwsxVWU71
 github.com/google/go-cmp v0.4.1/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
 github.com/google/go-cmp v0.5.4 h1:L8R9j+yAqZuZjsqh/z+F1NCffTKKLShY6zXTItVIZ8M=
 github.com/google/go-cmp v0.5.4/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
-github.com/google/uuid v1.1.4 h1:0ecGp3skIrHWPNGPJDaBIghfA6Sp7Ruo2Io8eLKzWm0=
-github.com/google/uuid v1.1.4/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
+github.com/google/uuid v1.1.5 h1:kxhtnfFVi+rYdOALN0B3k9UT86zVJKfBimRaciULW4I=
+github.com/google/uuid v1.1.5/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/jmespath/go-jmespath v0.4.0/go.mod h1:T8mJZnbsbmF+m6zOOFylbeCJqk5+pHWvzYPziyZiYoo=
 github.com/jmespath/go-jmespath/internal/testify v1.5.1/go.mod h1:L3OGu8Wl2/fWfCI6z80xFu9LTZmf1ZRjMHUOPmWr69U=
 github.com/kr/pretty v0.2.1 h1:Fmg33tUaq4/8ym9TJN1x7sLJnHVwhP33CNkpYV/7rwI=
@@ -52,10 +52,8 @@ github.com/tfaller/go-jsonvisitor v0.0.0-20200903141046-a0425ef297f8 h1:KTfUFKML
 github.com/tfaller/go-jsonvisitor v0.0.0-20200903141046-a0425ef297f8/go.mod h1:tvc0x1WoiZNkn9fMvl7qh3adlDfL00ve/qFUyFuXmyw=
 github.com/tfaller/go-sqlprepare v0.0.0-20200926193806-f262fddc887a h1:X2TOuGH1QNeesSWfuTBIMCNbv3bm+ex/yVMXGUps88M=
 github.com/tfaller/go-sqlprepare v0.0.0-20200926193806-f262fddc887a/go.mod h1:q5AaR1kSJdvCqaes7eqJP5v1jFjdOp4t08oEp0BpuN4=
-github.com/tfaller/propchange v0.0.0-20210110162640-dccb458c14fa h1:Fd/EZsCSEROZSV7YChw+sCdg4DK+rAIGfuQJPXkPYV8=
-github.com/tfaller/propchange v0.0.0-20210110162640-dccb458c14fa/go.mod h1:ZHKJLLE+TS6ee74lnc3jtjRpuQLAeL+TQfiPQe8JCB8=
-github.com/tfaller/propchange v0.0.0-20210112163100-b5f7eb8046f2 h1:znrfsyeq4M6zE3WpU5bHmQag5zie3dnt8fabIy7WiLo=
-github.com/tfaller/propchange v0.0.0-20210112163100-b5f7eb8046f2/go.mod h1:ZHKJLLE+TS6ee74lnc3jtjRpuQLAeL+TQfiPQe8JCB8=
+github.com/tfaller/propchange v0.0.0-20210117140545-5e3dfc2134c5 h1:irewBe80MiEZEV2de80jD7KBaRKZ8MGLdyFS2wZ9gGY=
+github.com/tfaller/propchange v0.0.0-20210117140545-5e3dfc2134c5/go.mod h1:ZHKJLLE+TS6ee74lnc3jtjRpuQLAeL+TQfiPQe8JCB8=
 github.com/urfave/cli/v2 v2.2.0/go.mod h1:SE9GqnLQmjVa0iPEY0f1w3ygNIYcIJ0OKPMoW2caLfQ=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/net v0.0.0-20190311183353-d8887717615a/go.mod h1:t9HGtf8HONx5eT2rtn7q6eTqICYqUVnKs3thJo3Qplg=

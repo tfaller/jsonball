@@ -23,10 +23,11 @@ type ListenOnChange struct {
 // ListenOnChangeDocument is used to listen to a changes of specific
 // document properties.
 type ListenOnChangeDocument struct {
-	Type       string   `json:"type"`
-	Name       string   `json:"name"`
-	Version    uint32   `json:"version"`
-	Properties []string `json:"props"`
+	Type        string   `json:"type"`
+	Name        string   `json:"name"`
+	NewDocument bool     `json:"newDoc"`
+	Version     uint32   `json:"version"`
+	Properties  []string `json:"props"`
 }
 
 // Change contains documents which where affected by a change.
