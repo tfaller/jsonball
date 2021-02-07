@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"context"
+	"crypto/cipher"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -12,6 +13,7 @@ import (
 	"github.com/tfaller/go-sqlprepare"
 	"github.com/tfaller/jsonball"
 	"github.com/tfaller/jsonball/event"
+	"golang.org/x/crypto/chacha20poly1305"
 )
 
 // Registry is a registry with a mysql backend
@@ -31,6 +33,7 @@ type Registry struct {
 	stmtHandlerReg    *sql.Stmt
 
 	docType map[string]uint64
+	docAead cipher.AEAD
 }
 
 // Document is an open document
@@ -48,7 +51,7 @@ type Document struct {
 }
 
 // NewRegistry opens a registry based on a connection string
-func NewRegistry(cs string) (*Registry, error) {
+func NewRegistry(cs string, key []byte) (*Registry, error) {
 	if !strings.Contains(cs, "parseTime=true") {
 		return nil, fmt.Errorf("Required option \"parseTime=true\" is missing in connection string")
 	}
@@ -63,6 +66,11 @@ func NewRegistry(cs string) (*Registry, error) {
 		return nil, err
 	}
 
+	m.docAead, err = chacha20poly1305.NewX(key)
+	if err != nil {
+		return nil, fmt.Errorf("can't init document encryption: %w", err)
+	}
+
 	return m, nil
 }
 
@@ -72,7 +80,7 @@ func (r *Registry) prepare() error {
 			Query: "SELECT * FROM document WHERE type = ? AND name = ? FOR UPDATE"},
 
 		{Name: "get-doc", Target: &r.stmtGetDoc,
-			Query: "SELECT document FROM document WHERE type = ? AND name = ? FOR SHARE"},
+			Query: "SELECT id, document, encrypted FROM document WHERE type = ? AND name = ? FOR SHARE"},
 
 		{Name: "new-doc", Target: &r.stmtNewDoc,
 			Query: "INSERT INTO document (type, name, document) VALUES (?, ?, ?)"},
@@ -81,7 +89,7 @@ func (r *Registry) prepare() error {
 			Query: "UPDATE document SET refreshedat = NOW() WHERE id = ?"},
 
 		{Name: "update-doc", Target: &r.stmtDocUpdate,
-			Query: "UPDATE document SET document = ?, refreshedat = NOW() WHERE id = ?"},
+			Query: "UPDATE document SET document = ?, refreshedat = NOW(), encrypted = 1 WHERE id = ?"},
 
 		{Name: "doc-type", Target: &r.stmtDocType,
 			Query: "SELECT id FROM document_type WHERE name = ?"},
@@ -171,6 +179,8 @@ func (r *Registry) tryOpenDoc(name string, typeID uint64, tx *sql.Tx) (*Document
 		reg: r,
 		tx:  tx,
 	}
+
+	var encrypted bool
 	err := row.Scan(
 		&doc.ID,
 		&doc.Type,
@@ -178,7 +188,17 @@ func (r *Registry) tryOpenDoc(name string, typeID uint64, tx *sql.Tx) (*Document
 		&doc.document,
 		&doc.RegisteredAt,
 		&doc.RefreshedAt,
+		&encrypted,
 	)
+
+	if encrypted {
+		plainDoc, err := decryptDoc(r.docAead, doc.ID, doc.Type, doc.Name, []byte(doc.document))
+		if err != nil {
+			return nil, err
+		}
+		doc.document = string(plainDoc)
+	}
+
 	return doc, err
 }
 
@@ -217,14 +237,24 @@ func (r *Registry) GetDocument(ctx context.Context, docType, name string) (strin
 		return "", err
 	}
 
+	encrypted := false
+	docID := uint64(0)
 	doc := ""
 	row := r.stmtGetDoc.QueryRow(docTypeID, name)
 
-	if err = row.Scan(&doc); err != nil {
+	if err = row.Scan(&docID, &doc, &encrypted); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return "", jsonball.ErrDocumentNotExist
 		}
 		return "", err
+	}
+
+	if encrypted {
+		plainDoc, err := decryptDoc(r.docAead, docID, docTypeID, name, []byte(doc))
+		if err != nil {
+			return "", err
+		}
+		doc = string(plainDoc)
 	}
 
 	return doc, nil
@@ -281,7 +311,12 @@ func (d *Document) Change(change jsonball.Change) error {
 	stmt := d.tx.Stmt(d.reg.stmtDocUpdate)
 	defer stmt.Close()
 
-	_, err := stmt.Exec(change.Document, d.ID)
+	doc, err := encryptDoc(d.reg.docAead, d.ID, d.Type, d.Name, []byte(change.Document))
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(doc, d.ID)
 	if err != nil {
 		return fmt.Errorf("Failed to update doc: %w", err)
 	}

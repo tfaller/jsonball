@@ -1,6 +1,7 @@
 package startup
 
 import (
+	"encoding/hex"
 	"fmt"
 	"os"
 
@@ -9,6 +10,7 @@ import (
 )
 
 const envRegistryConnectionString = "REGISTRY_CS"
+const envRegistryDocumentKey = "REGISTRY_DOC_KEY"
 
 // GetRegistry gets a registry
 func GetRegistry() (jsonball.Registry, error) {
@@ -20,7 +22,14 @@ func GetRegistry() (jsonball.Registry, error) {
 			"[username[:password]@][protocol[(address)]]/dbname[?param1=value1&...&paramN=valueN]",
 		)
 	}
-	return mysql.NewRegistry(cs)
+
+	docKeyHex := MustGetEnvVar(envRegistryDocumentKey)
+	docKey, err := hex.DecodeString(docKeyHex)
+	if err != nil {
+		return nil, fmt.Errorf("can't decode hex document key: %w", err)
+	}
+
+	return mysql.NewRegistry(cs, docKey)
 }
 
 // MustGetRegistry gets a registry, otherwise panics
