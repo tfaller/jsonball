@@ -4,21 +4,21 @@ go 1.15
 
 require (
 	github.com/aws/aws-lambda-go v1.22.0
-	github.com/aws/aws-sdk-go-v2 v1.1.0
-	github.com/aws/aws-sdk-go-v2/config v1.1.0
-	github.com/aws/aws-sdk-go-v2/service/sqs v1.1.0
+	github.com/aws/aws-sdk-go-v2 v1.2.0
+	github.com/aws/aws-sdk-go-v2/config v1.1.1
+	github.com/aws/aws-sdk-go-v2/service/sqs v1.1.1
 	github.com/go-sql-driver/mysql v1.5.0
-	github.com/golang/mock v1.4.4
+	github.com/golang/mock v1.5.0
 	github.com/google/uuid v1.2.0
 	github.com/kr/text v0.2.0 // indirect
 	github.com/stretchr/testify v1.7.0
 	github.com/tfaller/go-jsonera v0.0.0-20200904212909-09c78a8292d8
 	github.com/tfaller/go-jsonvisitor v0.0.0-20200903141046-a0425ef297f8
 	github.com/tfaller/go-sqlprepare v0.0.0-20200926193806-f262fddc887a
-	github.com/tfaller/propchange v0.0.0-20210207164741-4fcf87a1d487
-	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad
-	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
-	golang.org/x/sys v0.0.0-20210124154548-22da62e12c0c // indirect
+	github.com/tfaller/propchange v0.0.0-20210301192801-c946afd765d7
+	golang.org/x/crypto v0.0.0-20210220033148-5ea612d1eb83
+	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
+	golang.org/x/sys v0.0.0-20210301091718-77cc2087c03b // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
