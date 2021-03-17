@@ -12,6 +12,12 @@ type Change struct {
 	Document string
 }
 
+// DocumentList is the result of a ListDocuments operation
+type DocumentList struct {
+	Documents []string
+	NextToken string
+}
+
 // ErrDocumentNotExist indicates that an operation failed because
 // a given document does not exist.
 var ErrDocumentNotExist = errors.New("document does not exist")
@@ -45,6 +51,12 @@ type Registry interface {
 
 	// RegisterHandler registers a new handler
 	RegisterHandler(ctx context.Context, handler *event.RegisterHandler) error
+
+	// ListDocuments lists documents of a given type. With the parameter startToken pagination is
+	// possible. Either startToken is empty or the value of "NextToken" of a previous list operation.
+	// Note: There is no guarantee that documents are listed which were created after the NextToken
+	// was build. They might be listed or might not be.
+	ListDocuments(ctx context.Context, docType, startToken string, maxDocs uint16) (*DocumentList, error)
 }
 
 // DocOps handles the operations possible on an opened document

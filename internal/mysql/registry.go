@@ -31,6 +31,7 @@ type Registry struct {
 	stmtHandlerQueue  *sql.Stmt
 	stmtHandlerNewDoc *sql.Stmt
 	stmtHandlerReg    *sql.Stmt
+	stmtListDocs      *sql.Stmt
 
 	docType map[string]uint64
 	docAead cipher.AEAD
@@ -105,6 +106,9 @@ func (r *Registry) prepare() error {
 
 		{Name: "handler-newdoc", Target: &r.stmtHandlerNewDoc,
 			Query: "SELECT h.name FROM document_type dt JOIN document_type_handler dth ON dth.doctype = dt.id JOIN handler h ON h.id = dth.handler WHERE dt.name = ?"},
+
+		{Name: "list-docs", Target: &r.stmtListDocs,
+			Query: "SELECT name FROM document WHERE type = ? AND name > ? LIMIT ? FOR SHARE"},
 	}...)
 }
 
@@ -303,6 +307,34 @@ func (r *Registry) RegisterDocumentType(ctx context.Context, docType string) err
 func (r *Registry) RegisterHandler(ctx context.Context, handler *event.RegisterHandler) error {
 	_, err := r.stmtHandlerReg.ExecContext(ctx, handler.Handler, handler.QueueURL)
 	return err
+}
+
+// ListDocuments lists documents of a given type
+func (r *Registry) ListDocuments(ctx context.Context, docType, startToken string, maxDocs uint16) (*jsonball.DocumentList, error) {
+	tID, err := r.getTypeID(docType)
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := r.stmtListDocs.QueryContext(ctx, tID, startToken, maxDocs)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	docs := []string{}
+
+	for rows.Next() {
+		if err = rows.Scan(&startToken); err != nil {
+			return nil, err
+		}
+		docs = append(docs, startToken)
+	}
+
+	return &jsonball.DocumentList{
+		Documents: docs,
+		NextToken: startToken,
+	}, nil
 }
 
 // Change updates a document
