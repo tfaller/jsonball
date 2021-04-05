@@ -18,6 +18,10 @@ const (
 
 	// AdminCmdRequeueHandler is used to requeue all listeners of a handler
 	AdminCmdRequeueHandler = "requeueHandler"
+
+	// AdminCmdHandlerNewDoc is used to make sure that a handler is called for
+	// a new document of a given type.
+	AdminCmdHandlerNewDoc = "handlerNewDoc"
 )
 
 var (
@@ -54,6 +58,12 @@ func AdminCommands(ctx context.Context, registry jsonball.Registry, detector pro
 			return ErrCommandDataMissing
 		}
 		return RequeueHandler(ctx, detector, adminCmd.RequeueHandler.Handler)
+
+	case AdminCmdHandlerNewDoc:
+		if adminCmd.HandlerNewDoc == nil {
+			return ErrCommandDataMissing
+		}
+		return HandlerNewDoc(ctx, registry, detector, adminCmd.HandlerNewDoc)
 	}
 
 	return ErrInvalidCommand

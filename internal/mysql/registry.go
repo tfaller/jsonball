@@ -21,17 +21,19 @@ type Registry struct {
 	m  sync.Mutex
 	db *sql.DB
 
-	stmtOpenDoc       *sql.Stmt
-	stmtNewDoc        *sql.Stmt
-	stmtGetDoc        *sql.Stmt
-	stmtDocType       *sql.Stmt
-	stmtDocTypeReg    *sql.Stmt
-	stmtDocRefresh    *sql.Stmt
-	stmtDocUpdate     *sql.Stmt
-	stmtHandlerQueue  *sql.Stmt
-	stmtHandlerNewDoc *sql.Stmt
-	stmtHandlerReg    *sql.Stmt
-	stmtListDocs      *sql.Stmt
+	stmtOpenDoc         *sql.Stmt
+	stmtNewDoc          *sql.Stmt
+	stmtGetDoc          *sql.Stmt
+	stmtDocType         *sql.Stmt
+	stmtDocTypeReg      *sql.Stmt
+	stmtDocRefresh      *sql.Stmt
+	stmtDocUpdate       *sql.Stmt
+	stmtHandlerQueue    *sql.Stmt
+	stmtHandlerNewDoc   *sql.Stmt
+	stmtHandlerReg      *sql.Stmt
+	stmtListDocs        *sql.Stmt
+	stmtHandlerDocReg   *sql.Stmt
+	stmtHandlerDocDeReg *sql.Stmt
 
 	docType map[string]uint64
 	docAead cipher.AEAD
@@ -109,6 +111,13 @@ func (r *Registry) prepare() error {
 
 		{Name: "list-docs", Target: &r.stmtListDocs,
 			Query: "SELECT name FROM document WHERE type = ? AND name > ? LIMIT ? FOR SHARE"},
+
+		{Name: "handler-newdoc-reg", Target: &r.stmtHandlerDocReg,
+			Query: `INSERT INTO document_type_handler (doctype, handler) VALUES (?, (SELECT id FROM handler WHERE name = ?))
+					ON DUPLICATE KEY UPDATE handler = handler`},
+
+		{Name: "handler-newdoc-dereg", Target: &r.stmtHandlerDocDeReg,
+			Query: `DELETE FROM document_type_handler WHERE doctype = ? AND handler = (SELECT id FROM handler WHERE name = ?)`},
 	}...)
 }
 
@@ -335,6 +344,29 @@ func (r *Registry) ListDocuments(ctx context.Context, docType, startToken string
 		Documents: docs,
 		NextToken: startToken,
 	}, nil
+}
+
+func (r *Registry) HandlerNewDoc(ctx context.Context, handler, docType string, register bool) error {
+	typeID, err := r.getTypeID(docType)
+	if err != nil {
+		return fmt.Errorf("can't resolve docType: %w", err)
+	}
+
+	stmt := r.stmtHandlerDocReg
+	if !register {
+		stmt = r.stmtHandlerDocDeReg
+	}
+
+	res, err := stmt.ExecContext(ctx, typeID, handler)
+	if err != nil {
+		return err
+	}
+
+	if rows, err := res.RowsAffected(); err != nil || rows != 1 {
+		return fmt.Errorf("can't change handler newdoc behavior (does the handler exists?)")
+	}
+
+	return nil
 }
 
 // Change updates a document

@@ -50,12 +50,22 @@ type RegisterHandler struct {
 	QueueURL string `json:"queueUrl"`
 }
 
+// HandlerNewDoc is used to define that a given
+// handler should be called if a new document of a given
+// type was created.
+type HandlerNewDoc struct {
+	Handler  string `json:"handler"`
+	Type     string `json:"type"`
+	Existing bool   `json:"existing"`
+}
+
 // AdminCmd is used for multiple different administrative commands
 type AdminCmd struct {
 	Cmd             string                `json:"cmd"`
 	RegisterHandler *RegisterHandler      `json:"regHandler,omitempty"`
 	RegisterDocType *AdminRegisterDocType `json:"regDocType,omitempty"`
 	RequeueHandler  *AdminRequeueHandler  `json:"requeueHandler,omitempty"`
+	HandlerNewDoc   *HandlerNewDoc        `json:"handlerNewDoc,omitempty"`
 }
 
 // AdminRegisterDocType is used to register a new document type

@@ -57,6 +57,10 @@ type Registry interface {
 	// Note: There is no guarantee that documents are listed which were created after the NextToken
 	// was build. They might be listed or might not be.
 	ListDocuments(ctx context.Context, docType, startToken string, maxDocs uint16) (*DocumentList, error)
+
+	// HandlerNewDoc registers or de-registers that a handler should
+	// trigger for a new document of given type.
+	HandlerNewDoc(ctx context.Context, handler, docType string, register bool) error
 }
 
 // DocOps handles the operations possible on an opened document
