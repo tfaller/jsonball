@@ -121,7 +121,7 @@ func (r *Registry) prepare() error {
 	}...)
 }
 
-func (r *Registry) getTypeID(docType string) (uint64, error) {
+func (r *Registry) getTypeID(ctx context.Context, docType string) (uint64, error) {
 	r.m.Lock()
 	defer r.m.Unlock()
 
@@ -131,7 +131,7 @@ func (r *Registry) getTypeID(docType string) (uint64, error) {
 	}
 
 	// type is not cached ... read from DB
-	row := r.stmtDocType.QueryRow(docType)
+	row := r.stmtDocType.QueryRowContext(ctx, docType)
 	err := row.Scan(&tID)
 	if err != nil {
 		return 0, fmt.Errorf("Can't find doctype %v: %w", docType, err)
@@ -156,7 +156,7 @@ func (r *Registry) OpenDocument(ctx context.Context, docType, name string) (json
 		return nil, fmt.Errorf("can't open transaction for PutDocument: %w", err)
 	}
 
-	ops, err := r.doOpenDocument(docType, name, tx)
+	ops, err := r.doOpenDocument(ctx, docType, name, tx)
 	if err != nil {
 		tx.Rollback()
 		return nil, err
@@ -165,9 +165,9 @@ func (r *Registry) OpenDocument(ctx context.Context, docType, name string) (json
 	return ops, err
 }
 
-func (r *Registry) doOpenDocument(docType, name string, tx *sql.Tx) (jsonball.DocOps, error) {
+func (r *Registry) doOpenDocument(ctx context.Context, docType, name string, tx *sql.Tx) (jsonball.DocOps, error) {
 	// we need the doctype ... not the name
-	docTypeID, err := r.getTypeID(docType)
+	docTypeID, err := r.getTypeID(ctx, docType)
 	if err != nil {
 		return nil, fmt.Errorf("can't find docType: %w", err)
 	}
@@ -245,7 +245,7 @@ func (r *Registry) doNewDoc(name string, typeID uint64, tx *sql.Tx) (*Document, 
 // GetDocument gets the current document content
 func (r *Registry) GetDocument(ctx context.Context, docType, name string) (string, error) {
 	// resolve the doc type first
-	docTypeID, err := r.getTypeID(docType)
+	docTypeID, err := r.getTypeID(ctx, docType)
 	if err != nil {
 		return "", err
 	}
@@ -320,7 +320,7 @@ func (r *Registry) RegisterHandler(ctx context.Context, handler *event.RegisterH
 
 // ListDocuments lists documents of a given type
 func (r *Registry) ListDocuments(ctx context.Context, docType, startToken string, maxDocs uint16) (*jsonball.DocumentList, error) {
-	tID, err := r.getTypeID(docType)
+	tID, err := r.getTypeID(ctx, docType)
 	if err != nil {
 		return nil, err
 	}
@@ -347,7 +347,7 @@ func (r *Registry) ListDocuments(ctx context.Context, docType, startToken string
 }
 
 func (r *Registry) HandlerNewDoc(ctx context.Context, handler, docType string, register bool) error {
-	typeID, err := r.getTypeID(docType)
+	typeID, err := r.getTypeID(ctx, docType)
 	if err != nil {
 		return fmt.Errorf("can't resolve docType: %w", err)
 	}
