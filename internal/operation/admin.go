@@ -73,7 +73,7 @@ func AdminCommands(ctx context.Context, registry jsonball.Registry, detector pro
 		if adminCmd.RequeueDoc == nil {
 			return ErrCommandDataMissing
 		}
-		return RequeueDoc(ctx, registry, detector, adminCmd.RequeueDoc.Name, adminCmd.RequeueDoc.Type)
+		return RequeueDoc(ctx, registry, detector, adminCmd.RequeueDoc.Type, adminCmd.RequeueDoc.Name)
 	}
 
 	return ErrInvalidCommand
