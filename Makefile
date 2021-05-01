@@ -14,7 +14,7 @@ cli: build/cli/changes \
 
 build/lambda/% : cmd/lambda/*/%.go
 	go build -o $@ $?
-	zip $@-$(today).zip $@
+	zip -j $@-$(today).zip $@
 
 lambda: build/lambda/admin \
 	build/lambda/changes \
