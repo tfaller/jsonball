@@ -66,6 +66,7 @@ type AdminCmd struct {
 	RegisterDocType *AdminRegisterDocType `json:"regDocType,omitempty"`
 	RequeueHandler  *AdminRequeueHandler  `json:"requeueHandler,omitempty"`
 	HandlerNewDoc   *HandlerNewDoc        `json:"handlerNewDoc,omitempty"`
+	RequeueDoc      *AdminRequeueDoc      `json:"requeueDoc,omitempty"`
 }
 
 // AdminRegisterDocType is used to register a new document type
@@ -76,4 +77,11 @@ type AdminRegisterDocType struct {
 // AdminRequeueHandler is used to requeue a listeners of a handler
 type AdminRequeueHandler struct {
 	Handler string `json:"handler"`
+}
+
+// AdminRequeueDoc is used to trigger all handlers that listen
+// for a specific document
+type AdminRequeueDoc struct {
+	Type string `json:"type"`
+	Name string `json:"name"`
 }
