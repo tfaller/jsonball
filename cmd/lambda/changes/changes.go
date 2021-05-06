@@ -77,17 +77,17 @@ loop:
 func processChange(ctx context.Context, change propchange.OnChange) error {
 	jsonball, err := operation.HandleChange(ctx, registry, change)
 	if err != nil {
-		return err
+		return fmt.Errorf("can't build change event: %w", err)
 	}
 
 	msgBody, err := json.Marshal(jsonball)
 	if err != nil {
-		return err
+		return fmt.Errorf("can't marshal change event: %w", err)
 	}
 
 	queueURL, err := handlerQueueURL.GetHandlerQueueURL(ctx, jsonball.Handler)
 	if err != nil {
-		return err
+		return fmt.Errorf("can't resolve event handler queue: %w", err)
 	}
 
 	if !strings.HasSuffix(queueURL, ".fifo") {
@@ -104,10 +104,14 @@ func processChange(ctx context.Context, change propchange.OnChange) error {
 		MessageDeduplicationId: aws.String(uuid.New().String()),
 	})
 	if err != nil {
-		return err
+		return fmt.Errorf("can't send message to handler queue: %w", err)
 	}
 
-	return change.Commit()
+	if err = change.Commit(); err != nil {
+		return fmt.Errorf("can't commit change as handled: %w", err)
+	}
+
+	return nil
 }
 
 func main() {
