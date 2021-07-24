@@ -26,9 +26,10 @@ CREATE TABLE `document` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `type` bigint NOT NULL,
   `name` varchar(128) COLLATE utf8mb4_bin NOT NULL,
-  `document` json NOT NULL,
+  `document` MEDIUMBLOB NOT NULL,
   `registeredat` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `refreshedat` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `encrypted` TINYINT NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `type_name` (`type`,`name`),
   CONSTRAINT `type` FOREIGN KEY (`type`) REFERENCES `document_type` (`id`)
