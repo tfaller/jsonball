@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -74,7 +75,56 @@ func NewRegistry(cs string, key []byte) (*Registry, error) {
 		return nil, fmt.Errorf("can't init document encryption: %w", err)
 	}
 
+	if os.Getenv("JSONBALL_MYSQL_ENCRYPT_DOCS") == "1" {
+		err = m.encryptRemainignDocs()
+		if err != nil {
+			return nil, fmt.Errorf("encrypting remaining docs failed: %w", err)
+		}
+	}
+
 	return m, nil
+}
+
+func (r *Registry) encryptRemainignDocs() error {
+	ctx := context.Background()
+
+	// encrypt all remaining docs
+	row, err := r.db.Query("SELECT d.name, dt.name FROM document d JOIN document_type dt ON d.type = dt.id WHERE encrypted = 0")
+	if err != nil {
+		return err
+	}
+	defer row.Close()
+
+	var docName, docType string
+	executed := false
+	for row.Next() {
+		executed = true
+
+		err := row.Scan(&docName, &docType)
+		if err != nil {
+			return err
+		}
+
+		doc, err := r.OpenDocument(ctx, docType, docName)
+		if err != nil {
+			return err
+		}
+
+		if doc.IsNew() {
+			return fmt.Errorf("we found a new doc ... this should never happend")
+		}
+
+		err = doc.Change(jsonball.Change{Document: doc.Document()})
+		if err != nil {
+			return err
+		}
+	}
+
+	if !executed {
+		return fmt.Errorf("there are no more documents to encrypt, please disable Env-Var JSONBALL_MYSQL_ENCRYPT_DOCS")
+	}
+
+	return nil
 }
 
 func (r *Registry) prepare() error {
