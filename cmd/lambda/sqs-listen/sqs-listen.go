@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -17,6 +18,9 @@ var (
 )
 
 func lambdaMain(ctx context.Context, sqsEvent events.SQSEvent) error {
+	if len(sqsEvent.Records) == 0 {
+		return errors.New("invalid sqs event with no records")
+	}
 	for _, m := range sqsEvent.Records {
 		err := handleMessage(ctx, m)
 		if err != nil {
