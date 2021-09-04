@@ -11,8 +11,11 @@ import (
 
 // HandleChange handles an open change -> loads affected documents
 func HandleChange(ctx context.Context, registry jsonball.Registry, change propchange.OnChange) (*event.Change, error) {
+	lHandler, lName := name.ParseListenerName(change.Listener())
+
 	changeEvent := &event.Change{
-		Handler: name.ParseListenerName(change.Listener()),
+		Handler: lHandler,
+		Name:    lName,
 	}
 
 	docs := change.Documents()

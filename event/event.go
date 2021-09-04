@@ -17,6 +17,7 @@ type GetDocument struct {
 // ListenOnChange is used to listen to changes.
 type ListenOnChange struct {
 	Handler   string                   `json:"handler"`
+	Name      string                   `json:"name"`
 	Documents []ListenOnChangeDocument `json:"docs"`
 }
 
@@ -33,6 +34,7 @@ type ListenOnChangeDocument struct {
 // Change contains documents which where affected by a change.
 type Change struct {
 	Handler   string     `json:"handler"`
+	Name      string     `json:"name"`
 	Documents []Document `json:"docs"`
 }
 

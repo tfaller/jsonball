@@ -52,5 +52,5 @@ func Listen(ctx context.Context, detector propchange.Detector, listen event.List
 		Properties: map[string]uint64{name.HandlerRequeueProperty: uint64(time.Now().Unix() / 60)},
 	}
 
-	return detector.AddListener(ctx, name.CreateListenerName(listen.Handler), docFilter)
+	return detector.AddListener(ctx, name.CreateListenerName(listen.Handler, listen.Name), docFilter)
 }

@@ -78,7 +78,7 @@ func PutDocument(ctx context.Context, docRegistry jsonball.Registry, detector pr
 
 		// add "new doc" listerens to the new docs
 		for _, handler := range handlers {
-			err = detector.AddListener(ctx, name.CreateListenerName(handler), []propchange.ChangeFilter{
+			err = detector.AddListener(ctx, name.CreateListenerName(handler, ""), []propchange.ChangeFilter{
 				{
 					Document:   propDocName,
 					Properties: map[string]uint64{"d": 0},
