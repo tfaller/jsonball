@@ -69,6 +69,7 @@ type AdminCmd struct {
 	RequeueHandler  *AdminRequeueHandler  `json:"requeueHandler,omitempty"`
 	HandlerNewDoc   *HandlerNewDoc        `json:"handlerNewDoc,omitempty"`
 	RequeueDoc      *AdminRequeueDoc      `json:"requeueDoc,omitempty"`
+	AssignDoc       *AdminAssignDoc       `json:"assignDoc,omitempty"`
 }
 
 // AdminRegisterDocType is used to register a new document type
@@ -86,4 +87,11 @@ type AdminRequeueHandler struct {
 type AdminRequeueDoc struct {
 	Type string `json:"type"`
 	Name string `json:"name"`
+}
+
+// AdminAssignDoc assigns a document to a handler
+type AdminAssignDoc struct {
+	Handler string `json:"handler"`
+	Type    string `json:"type"`
+	Name    string `json:"name"`
 }

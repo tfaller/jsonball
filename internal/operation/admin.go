@@ -26,6 +26,9 @@ const (
 	// AdminCmdRequeueDoc is used to trigger all handlers that listen
 	// for a specific document
 	AdminCmdRequeueDoc = "requeueDoc"
+
+	// AdminCmdAssignDoc is used to assign a document to a handler
+	AdminCmdAssignDoc = "assignDoc"
 )
 
 var (
@@ -74,6 +77,12 @@ func AdminCommands(ctx context.Context, registry jsonball.Registry, detector pro
 			return ErrCommandDataMissing
 		}
 		return RequeueDoc(ctx, registry, detector, adminCmd.RequeueDoc.Type, adminCmd.RequeueDoc.Name)
+
+	case AdminCmdAssignDoc:
+		if adminCmd.AssignDoc == nil {
+			return ErrCommandDataMissing
+		}
+
 	}
 
 	return ErrInvalidCommand
