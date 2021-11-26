@@ -82,7 +82,8 @@ func AdminCommands(ctx context.Context, registry jsonball.Registry, detector pro
 		if adminCmd.AssignDoc == nil {
 			return ErrCommandDataMissing
 		}
-
+		ad := adminCmd.AssignDoc
+		return assignDoc(ctx, registry, detector, ad.Handler, ad.Type, ad.Name)
 	}
 
 	return ErrInvalidCommand
