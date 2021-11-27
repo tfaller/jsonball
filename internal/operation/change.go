@@ -2,6 +2,7 @@ package operation
 
 import (
 	"context"
+	"errors"
 
 	"github.com/tfaller/jsonball"
 	"github.com/tfaller/jsonball/event"
@@ -36,7 +37,10 @@ func HandleChange(ctx context.Context, registry jsonball.Registry, change propch
 
 		d, err := GetDocumentContent(ctx, registry, docType, docName)
 		if err != nil {
-			return nil, err
+			if !errors.Is(err, jsonball.ErrDocumentNotExist) {
+				return nil, err
+			}
+			d = event.Document{Type: docType, Name: docName}
 		}
 		changedDocs = append(changedDocs, d)
 	}
