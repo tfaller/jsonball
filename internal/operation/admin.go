@@ -29,6 +29,9 @@ const (
 
 	// AdminCmdAssignDoc is used to assign a document to a handler
 	AdminCmdAssignDoc = "assignDoc"
+
+	// AdminCmdAssignDocs is used to assign documents to a handler
+	AdminCmdAssignDocs = "assignDocs"
 )
 
 var (
@@ -84,6 +87,13 @@ func AdminCommands(ctx context.Context, registry jsonball.Registry, detector pro
 		}
 		ad := adminCmd.AssignDoc
 		return assignDoc(ctx, registry, detector, ad.Handler, ad.Type, ad.Name)
+
+	case AdminCmdAssignDocs:
+		if adminCmd.AssignDocs == nil {
+			return ErrCommandDataMissing
+		}
+		ad := adminCmd.AssignDocs
+		return assignDocs(ctx, registry, detector, ad.Handler, ad.Docs)
 	}
 
 	return ErrInvalidCommand
